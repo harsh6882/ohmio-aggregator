@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ohmio - Tech Price Compare</title>
+    <style>
+        /* Theme Variables */
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --success: #16a34a;
+            --hero-gradient: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-color: #f1f5f9;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --hero-gradient: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Header & Navigation */
+        header {
+            background-color: var(--card-bg);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            letter-spacing: -0.5px;
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--hero-gradient);
+            transition: background 0.3s;
+        }
+
+        .hero h1 { margin-top: 0; margin-bottom: 2rem; }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-container input[type="text"] {
+            flex-grow: 1;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 50px 0 0 50px;
+            outline: none;
+            background: transparent;
+            color: var(--text-color);
+        }
+
+        .search-container button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* Results Grid */
+        .results-section {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Product Cards */
+        .product-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .product-card h4 { margin: 0 0 0.5rem 0; color: var(--text-color); }
+        .vendor { font-size: 0.9rem; color: #64748b; margin-bottom: 1rem; }
+        .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .price { font-size: 1.5rem; font-weight: bold; color: var(--success); }
+        
+        .buy-btn {
+            display: block;
+            text-align: center;
+            background: transparent;
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* Loading Spinner CSS */
+        .loading-container {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--border-color);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem auto;
+        }
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ========================================== */
+        /* MOBILE RESPONSIVENESS (Screens under 768px)*/
+        /* ========================================== */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                text-align: center;
+            }
+            
+            nav {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .hero {
+                padding: 3rem 1rem;
+            }
+
+            .search-container {
+                flex-direction: column;
+                border-radius: 12px;
+                background: transparent;
+                box-shadow: none;
+                border: none;
+                gap: 0.5rem;
+            }
+
+            .search-container input[type="text"] {
+                border-radius: 12px;
+                border: 1px solid var(--border-color);
+                background: var(--card-bg);
+                width: 100%;
+                box-sizing: border-box; /* Ensures padding doesn't overflow */
+                text-align: center;
+            }
+
+            .search-container button {
+                border-radius: 12px;
+                padding: 1rem;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .results-section {
+                padding: 1rem;
+            }
+
+            .results-grid {
+                /* Forces exactly one card per row on mobile */
+                grid-template-columns: 1fr; 
+                gap: 1rem;
+            }
+            
+            .product-card {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Ohmio</div>
+        <nav style="display: flex; align-items: center; gap: 1.5rem;">
+            <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Mode</button>
+            <a href="#" style="text-decoration: none; color: var(--text-color); font-weight: 500;">BOM Upload</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Find the Best Prices for Your Build</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search for components (e.g., ESP32, Arduino)...">
+            <button onclick="fetchResults()">Compare</button>
+        </div>
+    </section>
+
+    <section class="results-section">
+        <h2 id="resultsHeader" style="display: none;">Comparison Results</h2>
+        <div id="resultsGrid" class="results-grid"></div>
+    </section>
+
+    <script>
+        // Initialize Theme and Event Listeners
+        document.addEventListener("DOMContentLoaded", () => {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') fetchResults(); });
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        });
+
+        // Handle Dark/Light mode toggling
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Main Search Function
+        async function fetchResults() {
+            const query = document.getElementById('searchInput').value.trim();
+            const grid = document.getElementById('resultsGrid');
+            const header = document.getElementById('resultsHeader');
+
+            if (query === "") {
+                alert("Please enter a component name.");
+                return;
+            }
+
+            // Show beautiful loading state
+            header.style.display = "block";
+            header.innerText = `Comparison Results for "${query}"`;
+            grid.innerHTML = `
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <h3 style="margin-bottom: 0.5rem;">Scraping Live Prices...</h3>
+                    <p style="color: #64748b; margin-top: 0;">Scanning Amazon, Flipkart, Robu, MakerBazar, and ElectronicsComp</p>
+                </div>
+            `;
+
+            try {
+                // Notice this URL! It's just a relative path now. 
+                // The browser automatically knows to ask the exact server that served this HTML file.
+                const response = await fetch(`/api/compare?query=${encodeURIComponent(query)}`);
+                
+                if (!response.ok) throw new Error("Could not connect to the backend server.");
+                const data = await response.json();
+                
+                if(data.length === 0) {
+                    grid.innerHTML = "<p>No matches found across integrated aggregators.</p>";
+                    return;
+                }
+
+                let htmlContent = "";
+                data.forEach(product => {
+                    htmlContent += `
+                        <div class="product-card">
+                            <h4>${product.name}</h4>
+                            <div class="vendor">Sold by: <strong>${product.vendor}</strong></div>
+                            <div class="price-row">
+                                <span class="price">₹${product.price}</span>
+                                <span style="font-size: 0.8rem; color: #64748b;">+ ₹${product.shipping} shipping</span>
+                            </div>
+                            <a href="${product.link}" target="_blank" class="buy-btn">View Offer</a>
+                        </div>`;
+                });
+                
+                grid.innerHTML = htmlContent;
+
+            } catch (error) {
+                grid.innerHTML = `<p style="color: #ef4444; font-weight: bold; text-align: center;">Error: Could not connect to backend. Is the Python server running?</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
