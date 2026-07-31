@@ -1,26 +1,11 @@
-from flask import Flask, request, jsonify, send_file, session, redirect, url_for, render_template
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from bs4 import BeautifulSoup
 import urllib.parse
 import cloudscraper 
-import secrets
-import os
-from google import genai
-from google.genai import types
 
 app = Flask(__name__)
 CORS(app)
-
-# This secures the session cookies. Keep this safe!
-app.secret_key = secrets.token_hex(16) 
-
-# Define your username and password credentials
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "password123"
-
-# Initialize the Gemini Client. 
-# It will automatically find the GEMINI_API_KEY in Render's environment variables.
-client = genai.Client()
 
 # Mimic a real browser to bypass bot protection
 scraper = cloudscraper.create_scraper(browser={
@@ -178,38 +163,16 @@ def scrape_flipkart(query):
 
 
 # ==========================================
-# ROUTES
+# THIS IS THE ROUTE THAT SERVES YOUR HTML
 # ==========================================
 @app.route('/')
 def home():
-    if not session.get('logged_in'):
-        return redirect(url_for('login'))
+    """This serves page.html to anyone who visits the IP"""
     return send_file('page.html')
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            session['logged_in'] = True
-            return redirect(url_for('home'))
-        else:
-            return render_template('login.html', error="Invalid credentials.")
-            
-    return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
 
 @app.route('/api/compare', methods=['GET'])
 def compare_prices():
-    if not session.get('logged_in'):
-        return jsonify({"error": "Unauthorized"}), 401
-        
     query = request.args.get('query', '')
     
     if not query:
@@ -236,36 +199,7 @@ def compare_prices():
             { "name": f"{query} Authentic", "vendor": "Robu (Simulated)", "price": 460, "shipping": 40, "link": "#" }
         ]
 
-    # --- AI Integration ---
-    try:
-        # Create a prompt describing the best finds
-        prompt_text = f"""
-        You are an expert electronics purchasing assistant. I have scraped the following 
-        prices for the component '{query}': {live_results}. 
-        Analyze these prices. Tell me which one is the best deal, but also factor in 
-        typical shipping times and reliability for these specific vendors. Keep it to 
-        3 short sentences.
-        """
-        
-        # Use the recommended gemini-2.0-flash model
-        response = client.models.generate_content(
-            model='gemini-2.0-flash', 
-            contents=prompt_text,
-            config=types.GenerateContentConfig(
-                temperature=0.3, # Lower temperature for more analytical responses
-            )
-        )
-        ai_insight = response.text
-        
-    except Exception as e:
-        ai_insight = "AI analysis is currently unavailable."
-        print(f"Gemini API Error: {e}")
-
-    # Return BOTH the prices and the AI insight to the frontend
-    return jsonify({
-        "prices": live_results,
-        "recommendation": ai_insight
-    })
+    return jsonify(live_results)
 
 if __name__ == '__main__':
     print("Starting Ohmio Multi-Vendor Engine...")
