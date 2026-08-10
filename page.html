@@ -1,76 +1,416 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ohmio - Login</title>
+    <title>OHMio | Hardware Telemetry & Price Comparison</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     <style>
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            font-family: system-ui, -apple-system, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+        :root[data-theme="light"] {
+            --bg-page: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --border-light: #e2e8f0;
+            --accent-primary: #0f172a;
+            --accent-alert: #c2410c;
+            --accent-alert-bg: #fff7ed;
+            --accent-blue: #1d4ed8;
+            --stock-green: #15803d;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
-        .login-card {
-            background-color: #1e293b;
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 400px;
+
+        :root[data-theme="dark"] {
+            --bg-page: #0b0f19;
+            --bg-surface: #111827;
+            --bg-subtle: #1f2937;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: #374151;
+            --border-light: #1f2937;
+            --accent-primary: #f9fafb;
+            --accent-alert: #ea580c;
+            --accent-alert-bg: #2d1606;
+            --accent-blue: #60a5fa;
+            --stock-green: #22c55e;
+            --timestamp-color: #9ca3af;
         }
-        h2 { margin-top: 0; color: #38bdf8; }
-        .form-group { margin-bottom: 1.25rem; }
-        label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #94a3b8; }
-        input {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 6px;
-            border: 1px solid #334155;
-            background-color: #0f172a;
-            color: #f8fafc;
-            box-sizing: border-box;
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-sans); background-color: var(--bg-page); color: var(--text-primary); line-height: 1.5; font-size: 0.9rem; -webkit-font-smoothing: antialiased; }
+        a { color: inherit; text-decoration: none; }
+
+        .community-banner { background-color: var(--accent-alert-bg); border-bottom: 1px solid var(--border-color); padding: 0.5rem 1.5rem; font-size: 0.8rem; color: var(--accent-alert); display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+        .banner-tag { font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; background-color: var(--accent-alert); color: #ffffff; padding: 0.05rem 0.35rem; border-radius: 2px; font-size: 0.7rem; }
+        .banner-link { text-decoration: underline; font-weight: 600; }
+
+        header { position: sticky; top: 0; z-index: 1000; background-color: var(--bg-surface); border-bottom: 1px solid var(--border-color); padding: 0.75rem 1.5rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+        .brand-logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.03em; display: flex; align-items: center; gap: 0.4rem; color: var(--text-primary); }
+        .brand-logo span { background-color: var(--accent-primary); color: var(--bg-surface); padding: 0.1rem 0.4rem; border-radius: 3px; font-family: var(--font-mono); font-size: 0.85rem; }
+        .nav-controls { display: flex; align-items: center; gap: 1.25rem; }
+        .theme-toggle-btn { background-color: var(--bg-subtle); border: 1px solid var(--border-color); color: var(--text-primary); font-family: var(--font-mono); font-size: 0.75rem; padding: 0.35rem 0.65rem; border-radius: 3px; cursor: pointer; font-weight: 600; }
+        .nav-dropdown select { appearance: none; background: var(--bg-surface); border: 1px solid var(--border-color); padding: 0.4rem 1.75rem 0.4rem 0.75rem; font-family: var(--font-sans); font-size: 0.85rem; font-weight: 500; color: var(--text-primary); border-radius: 3px; cursor: pointer; }
+        .nav-link { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 0.4rem; }
+        .alert-badge { background-color: var(--accent-alert-bg); color: var(--accent-alert); border: 1px solid var(--accent-alert); padding: 0.05rem 0.35rem; border-radius: 2px; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; }
+
+        .hero-section { background-color: var(--bg-surface); border-bottom: 1px solid var(--border-color); padding: 2rem 1.5rem 1.75rem; }
+        .hero-content { max-width: 900px; margin: 0 auto; text-align: center; }
+        .hero-headline { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 1.25rem; }
+        .search-wrapper { display: flex; gap: 0.5rem; background: var(--bg-surface); border: 2px solid var(--border-color); border-radius: 4px; padding: 0.25rem; margin-bottom: 0.75rem; }
+        .search-input { flex-grow: 1; border: none; padding: 0.6rem 0.8rem; font-family: var(--font-sans); font-size: 0.95rem; outline: none; color: var(--text-primary); background: transparent; }
+        .search-btn { background-color: var(--accent-primary); color: var(--bg-surface); border: none; padding: 0 1.5rem; font-family: var(--font-sans); font-weight: 600; font-size: 0.85rem; border-radius: 3px; cursor: pointer; }
+        .recent-tags { display: flex; align-items: center; justify-content: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.75rem; color: var(--text-muted); }
+        .tag-btn { background-color: var(--bg-subtle); border: 1px solid var(--border-light); padding: 0.15rem 0.45rem; border-radius: 3px; font-family: var(--font-mono); color: var(--text-secondary); cursor: pointer; }
+
+        .layout-wrapper { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; display: flex; gap: 1.75rem; align-items: flex-start; }
+        .filter-sidebar { width: 280px; flex-shrink: 0; background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 4px; padding: 1.25rem; }
+        .sidebar-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .reset-link { font-size: 0.7rem; color: var(--text-muted); cursor: pointer; text-transform: none; font-weight: 400; }
+        .filter-group { margin-bottom: 1.25rem; }
+        .filter-group-label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; display: block; text-transform: uppercase; }
+        .checkbox-list { display: flex; flex-direction: column; gap: 0.35rem; }
+        .checkbox-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-primary); cursor: pointer; }
+        .checkbox-label input { accent-color: var(--accent-primary); }
+        .badge-count { margin-left: auto; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); }
+
+        .main-content { flex-grow: 1; min-width: 0; }
+        .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem; }
+        .section-title { font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-primary); }
+        .section-meta { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); }
+
+        .table-scroll-wrapper { width: 100%; overflow-x: auto; background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 2rem; }
+        .results-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; min-width: 800px; }
+        .results-table th { background-color: var(--bg-subtle); padding: 0.65rem 0.85rem; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-color); letter-spacing: 0.05em; }
+        .results-table td { padding: 0.75rem 0.85rem; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+        .results-table tr:hover td { background-color: var(--bg-subtle); }
+
+        .part-media-box { display: flex; align-items: center; gap: 0.75rem; }
+        .schematic-icon-placeholder { width: 38px; height: 38px; background-color: var(--bg-subtle); border: 1px stroke var(--border-color); border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-muted); }
+        .part-info { display: flex; flex-direction: column; }
+        .part-title { font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+        .mpn-badge { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-blue); font-weight: 600; }
+        .meta-tag { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); }
+
+        .vendor-cell { font-weight: 600; color: var(--text-secondary); }
+        .price-container { display: flex; flex-direction: column; }
+        .price-main { font-family: var(--font-mono); font-weight: 600; font-size: 0.9rem; color: var(--text-primary); }
+
+        .btn-table-buy { display: inline-block; background-color: var(--bg-subtle); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.3rem 0.6rem; border-radius: 3px; font-weight: 600; font-size: 0.75rem; }
+        .btn-table-buy:hover { background-color: var(--accent-primary); color: var(--bg-surface); }
+
+        .compatibility-notes-wrapper { background-color: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 4px; padding: 1rem; margin-top: 2rem; }
+        .notes-heading { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+        .notes-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .note-card { background-color: var(--bg-surface); border: 1px solid var(--border-light); border-left: 3px solid var(--accent-blue); padding: 0.6rem 0.8rem; border-radius: 2px; font-size: 0.8rem; }
+        .note-meta { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem; }
+        .note-author { font-weight: 600; color: var(--text-primary); }
+        .note-content { color: var(--text-secondary); }
+
+        .loading-box { background-color: var(--bg-surface); border: 1px solid var(--border-light); padding: 2.5rem; text-align: center; border-radius: 4px; }
+        .loading-spinner { width: 20px; height: 20px; border: 2px solid var(--border-color); border-top-color: var(--text-primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 0.75rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        footer { background-color: var(--bg-surface); border-top: 1px solid var(--border-color); padding: 1.5rem; font-size: 0.75rem; color: var(--text-muted); margin-top: 3rem; }
+        .footer-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+        @media (max-width: 900px) {
+            .layout-wrapper { flex-direction: column; }
+            .filter-sidebar { width: 100%; }
+            .nav-container { flex-direction: column; align-items: stretch; }
         }
-        input:focus { outline: 2px solid #38bdf8; }
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #38bdf8;
-            color: #0f172a;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 0.5rem;
-        }
-        button:hover { background-color: #7dd3fc; }
-        .error-msg { color: #f87171; font-size: 0.9rem; margin-bottom: 1rem; }
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <h2>Ohmio Auth</h2>
-        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Please log in to access the price engine.</p>
-        
-        {% if error %}
-            <div class="error-msg">{{ error }}</div>
-        {% endif %}
-        
-        <form action="/login" method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Log In</button>
-        </form>
+
+    <div class="community-banner">
+        <span class="banner-tag">Notice</span>
+        <span>Global stock constraints on STMicroelectronics chips — <a href="#alternatives" class="banner-link" onclick="quickSearch('STM32 Alternative')">See verified alternative drop-in parts list</a></span>
     </div>
+
+    <header>
+        <div class="nav-container">
+            <a href="/" class="brand-logo">
+                OHMio <span>ENGINE</span>
+            </a>
+
+            <div class="nav-controls">
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">[Theme: Light]</button>
+
+                <div class="nav-dropdown">
+                    <select id="categorySelect" onchange="handleCategoryChange(this.value)">
+                        <option value="">All Categories</option>
+                        <option value="microcontrollers">Microcontrollers</option>
+                        <option value="motors">Motors & Motion</option>
+                        <option value="sensors">Sensors</option>
+                        <option value="power">Power</option>
+                    </select>
+                </div>
+
+                <a href="#alerts" class="nav-link">
+                    Saved Alerts <span class="alert-badge">3</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-headline">Compare Robotics Parts & Prices Across Indian Distributors</h1>
+            
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" class="search-input" placeholder="Enter Part Number, SKU, or Keyword (e.g., RP2040, NEMA 17, ESP32)...">
+                <button onclick="fetchResults()" class="search-btn">Search Index</button>
+            </div>
+
+            <div class="recent-tags">
+                <span>Recent Queries:</span>
+                <button class="tag-btn" onclick="quickSearch('RP2040')">RP2040</button>
+                <button class="tag-btn" onclick="quickSearch('NEMA 17')">NEMA 17</button>
+                <button class="tag-btn" onclick="quickSearch('VL53L1X LiDAR')">VL53L1X LiDAR</button>
+                <button class="tag-btn" onclick="quickSearch('ESP32-WROOM')">ESP32-WROOM</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="layout-wrapper">
+
+        <aside class="filter-sidebar">
+            <div class="sidebar-title">
+                <span>Filter Index</span>
+                <span class="reset-link" onclick="resetFilters()">Reset All</span>
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-group-label">Distributors</span>
+                <div class="checkbox-list">
+                    <label class="checkbox-label"><input type="checkbox" checked value="robu"> Robu.in <span class="badge-count">1,240</span></label>
+                    <label class="checkbox-label"><input type="checkbox" checked value="electronicscomp"> ElectronicsComp <span class="badge-count">980</span></label>
+                    <label class="checkbox-label"><input type="checkbox" checked value="makerbazar"> MakerBazar <span class="badge-count">540</span></label>
+                    <label class="checkbox-label"><input type="checkbox" checked value="amazon"> Amazon IN <span class="badge-count">310</span></label>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-group-label">Search Mode</span>
+                <div class="checkbox-list">
+                    <label class="checkbox-label"><input type="radio" name="provider" checked> Gemini Live Web Grounding</label>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <section id="resultsSection" style="display:none;">
+                <div class="section-header">
+                    <h2 id="resultsHeader" class="section-title">Query Results</h2>
+                    <span id="resultsCount" class="section-meta">0 Matches</span>
+                </div>
+                
+                <div id="resultsContainer"></div>
+            </section>
+
+            <section class="compatibility-notes-wrapper" id="notesWrapper" style="display:none;">
+                <div class="notes-heading">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Hardware Compatibility & Technical Notes
+                </div>
+                <div class="notes-list" id="notesList"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <div>
+                <strong>BotPrice Hardware Aggregator</strong> — AI-Grounded hardware telemetry.
+            </div>
+            <div>
+                Distributors Indexed: Robu, ElectronicsComp, MakerBazar, Amazon IN.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('keydown', (event) => { 
+                if (event.key === 'Enter') fetchResults(); 
+            });
+        });
+
+        function toggleTheme() {
+            const htmlTag = document.documentElement;
+            const themeBtn = document.getElementById('themeToggleBtn');
+            if (htmlTag.getAttribute('data-theme') === 'light') {
+                htmlTag.setAttribute('data-theme', 'dark');
+                themeBtn.innerText = '[Theme: Dark]';
+            } else {
+                htmlTag.setAttribute('data-theme', 'light');
+                themeBtn.innerText = '[Theme: Light]';
+            }
+        }
+
+        function resetFilters() {
+            const checkboxes = document.querySelectorAll('.filter-sidebar input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = true);
+        }
+
+        function quickSearch(queryText) {
+            document.getElementById('searchInput').value = queryText;
+            fetchResults();
+        }
+
+        function handleCategoryChange(categoryValue) {
+            if (categoryValue) quickSearch(categoryValue);
+        }
+
+        async function fetchResults() {
+            const query = document.getElementById('searchInput').value.trim();
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsHeader = document.getElementById('resultsHeader');
+            const resultsCount = document.getElementById('resultsCount');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const notesWrapper = document.getElementById('notesWrapper');
+            const notesList = document.getElementById('notesList');
+
+            if (query === "") return;
+
+            resultsSection.style.display = "block";
+            notesWrapper.style.display = "none";
+            resultsHeader.innerText = `Search Telemetry: "${query}"`;
+            resultsCount.innerText = "Querying live e-commerce listings...";
+            
+            resultsContainer.innerHTML = `
+                <div class="loading-box">
+                    <div class="loading-spinner"></div>
+                    <div style="font-weight: 600; font-size: 0.85rem;">Searching Live Web Listings</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Gemini AI is scanning Indian distributors for current SKUs & pricing...</div>
+                </div>
+            `;
+
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            try {
+                const response = await fetch(`/api/compare?query=${encodeURIComponent(query)}`);
+                if (!response.ok) throw new Error("API response error");
+                const data = await response.json();
+                
+                const items = data.items || [];
+                const notes = data.compatibility_notes || [];
+
+                if (items.length === 0) {
+                    resultsCount.innerText = "0 matches found";
+                    resultsContainer.innerHTML = `
+                        <div class="loading-box">
+                            <div style="font-weight: 600;">No distributor SKUs matched "${query}"</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                resultsCount.innerText = `${items.length} Quotes Located`;
+
+                let tableHtml = `
+                    <div class="table-scroll-wrapper">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Distributor</th>
+                                    <th>Component Specifications</th>
+                                    <th>Form Factor</th>
+                                    <th>Unit Price</th>
+                                    <th>Est. Shipping</th>
+                                    <th>Total Price</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                items.forEach(item => {
+                    const basePrice = parseFloat(item.price) || 0;
+                    const shipPrice = parseFloat(item.shipping) || 0;
+                    const totalPrice = (basePrice + shipPrice).toFixed(2);
+
+                    tableHtml += `
+                        <tr>
+                            <td><div class="vendor-cell">${escapeHtml(item.vendor)}</div></td>
+                            <td>
+                                <div class="part-media-box">
+                                    <div class="schematic-icon-placeholder">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <rect x="5" y="4" width="14" height="16" rx="1"/>
+                                            <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+                                        </svg>
+                                    </div>
+                                    <div class="part-info">
+                                        <span class="mpn-badge">MPN: ${escapeHtml(item.mpn)}</span>
+                                        <span class="part-title">${escapeHtml(item.name)}</span>
+                                        <span class="meta-tag">Mfr: ${escapeHtml(item.mfr)}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="meta-tag" style="font-weight: 600;">${escapeHtml(item.form_factor)}</span></td>
+                            <td>
+                                <div class="price-container">
+                                    <span class="price-main">₹${basePrice.toFixed(2)}</span>
+                                </div>
+                            </td>
+                            <td>₹${shipPrice.toFixed(2)}</td>
+                            <td><span class="price-main" style="color: var(--accent-blue);">₹${totalPrice}</span></td>
+                            <td>
+                                <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener" class="btn-table-buy">View Link</a>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                resultsContainer.innerHTML = tableHtml;
+
+                if (notes.length > 0) {
+                    notesList.innerHTML = notes.map(note => `
+                        <div class="note-card">
+                            <div class="note-meta"><span class="note-author">@Gemini_Telemetry</span> • AI Technical Engineering Note</div>
+                            <div class="note-content">${escapeHtml(note)}</div>
+                        </div>
+                    `).join('');
+                    notesWrapper.style.display = "block";
+                }
+
+            } catch (error) {
+                resultsCount.innerText = "Error";
+                resultsContainer.innerHTML = `
+                    <div class="loading-box" style="border-color: var(--accent-alert);">
+                        <div style="font-weight: 600; color: var(--accent-alert);">Unable to reach backend GenAI service.</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Verify your GEMINI_API_KEY environment variable in Render.</div>
+                    </div>
+                `;
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+    </script>
 </body>
 </html>
