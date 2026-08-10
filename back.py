@@ -13,7 +13,7 @@ ai_client = genai.Client(api_key=GEMINI_API_KEY)
 
 @app.route('/')
 def home():
-    """Serves page.html to browser client"""
+    """Serves page.html directly to browser without authentication"""
     return send_file('page.html')
 
 @app.route('/api/compare', methods=['GET'])
