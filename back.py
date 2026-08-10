@@ -13,16 +13,11 @@ from google.genai import types
 app = Flask(__name__)
 CORS(app)
 
-# ==========================================
-# CONFIGURATION & CLIENT INITIALIZATION
-# ==========================================
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
 SERPAPI_KEY = os.environ.get("SERPAPI_KEY", "YOUR_SERPAPI_KEY_HERE")  # Optional: for Google Shopping
 
-# Initialize Gemini Client (using modern google-genai SDK)
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
 
-# Mimic a real browser to bypass bot protection for web scrapers
 scraper = cloudscraper.create_scraper(browser={
     'browser': 'chrome',
     'platform': 'windows',
@@ -40,9 +35,6 @@ def clean_price(price_text):
     except ValueError:
         return 0.0
 
-# ==========================================
-# 1. DIRECT DISTRIBUTOR SCRAPERS
-# ==========================================
 
 def scrape_robu(query):
     results = []
@@ -183,9 +175,6 @@ def scrape_google_shopping(query):
         print(f"Google Shopping API Error: {e}")
     return results
 
-# ==========================================
-# 2. GEMINI AI NORMALIZATION & ANALYSIS LAYER
-# ==========================================
 
 def process_results_with_ai(raw_results, query):
     """
@@ -318,10 +307,6 @@ def process_results_with_ai(raw_results, query):
             "compatibility_notes": ["Note: Operating in fallback mode without AI metadata parsing."]
         }
 
-# ==========================================
-# 3. API ROUTES
-# ==========================================
-
 @app.route('/')
 def home():
     """Serves page.html to browser client"""
@@ -336,14 +321,12 @@ def compare_prices():
     print(f"\n--- Searching Multi-Vendor Hardware Stores for: {query} ---")
     raw_results = []
 
-    # Gather listings from web scrapers & Google Shopping
     raw_results.extend(scrape_robu(query))
     raw_results.extend(scrape_electronicscomp(query))
     raw_results.extend(scrape_makerbazar(query))
     raw_results.extend(scrape_amazon(query))
     raw_results.extend(scrape_google_shopping(query))
 
-    # Backup simulated hardware data if scrapers are offline/blocked
     if len(raw_results) == 0:
         print("All scrapers blocked or offline. Injecting fallback hardware telemetry...")
         raw_results = [
